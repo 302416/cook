@@ -22,13 +22,13 @@ public class AGetAllHistory {
 
 		String header = "序号, 基金代码, 基金名称, 最新净值日期, 最新净值, 最新回撤, 相对于历史最大回撤,阈值区间,--,成立以来最大回撤, 最大回撤净值, 最大回撤周期,--, 历史最高日期, 历史最高日净值, 备注";
 
-		String additionalNoteHeader = "序号, 基金代码, 基金名称, 最新净值, 最新回撤, 相对于历史最大回撤,昨日阈值区间,今日阈值区间";
+		String additionalNoteHeader = "序号, 基金代码, 基金名称, 最新净值日期, 最新净值, 最新回撤, 相对于历史最大回撤,昨日阈值区间,今日阈值区间";
 
 		outputHeader.append(header)
 					.append("\n");
 
 		additionalNoteHeaderBuffer
-					.append("\n")
+					// .append("\n")
 					.append("\n")
 					.append(", 阈值区间变化提醒：\n")
 					.append(additionalNoteHeader)
@@ -47,7 +47,8 @@ public class AGetAllHistory {
 			br.readLine(); // 跳过第一行
 			boolean firstWriteFlag = true;
 			String outputFile = "";	
-			
+			String alertFile = "";	
+
 			// 逐行读取
 			while ((line = br.readLine()) != null) {
 				String[] items = line.trim().split(Constant.splitter);
@@ -92,9 +93,11 @@ public class AGetAllHistory {
 							additionalNoteBuffer.append(String.valueOf(i))
 												.append(Constant.splitter)
 												.append('\'')
-												.append(number)
+												.append(number.trim())
 												.append(Constant.splitter)
-												.append(name)
+												.append(name.trim())
+												.append(Constant.splitter)
+												.append(aGetHist.getLatestNode().getFSRQ())
 												.append(Constant.splitter)
 												.append(aGetHist.getLatestNode().getDWJZ())
 												.append(Constant.splitter)
@@ -117,9 +120,9 @@ public class AGetAllHistory {
 						outputBuffer.append(String.valueOf(i))
 								.append(Constant.splitter)
 								.append('\'')
-								.append(number)
+								.append(number.trim())
 								.append(Constant.splitter)
-								.append(name)
+								.append(name.trim())
 								.append(Constant.splitter)
 								.append(aGetHist.getLatestNode().getFSRQ())
 								.append(Constant.splitter)
@@ -151,7 +154,8 @@ public class AGetAllHistory {
 						if (firstWriteFlag) {
 							// 根据最新日期设置文件名
 							outputFile = MessageFormat.format(Constant.dataPattern, aGetHist.getLatestNode().getFSRQ());
-							
+							alertFile = MessageFormat.format(Constant.alertPattern, aGetHist.getLatestNode().getFSRQ());
+
 							// 先打印表头
 							FileOps.instance.outputFile(outputFile, outputHeader.toString());
 							firstWriteFlag = false;
@@ -171,8 +175,8 @@ public class AGetAllHistory {
 									.append("无")
 									.append("\n");
 			}
-			FileOps.instance.appendFile(outputFile, additionalNoteHeaderBuffer.toString());
-			FileOps.instance.appendFile(outputFile, additionalNoteBuffer.toString());
+			FileOps.instance.appendFile(alertFile, additionalNoteHeaderBuffer.toString());
+			FileOps.instance.appendFile(alertFile, additionalNoteBuffer.toString());
 
 			inputStream.close();
 			br.close();

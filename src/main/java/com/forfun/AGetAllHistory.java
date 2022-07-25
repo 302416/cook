@@ -118,6 +118,10 @@ public class AGetAllHistory {
 						if (aGetHist.getFHSPflag()) {
 							commentStr = "有历史分红";
 						}
+						String largestWithDraw = aGetHist.getLargestWithdrawNode().getWithdraw();
+						if (number.trim().equals("006567") || number.trim().equals("006624")) {
+							largestWithDraw = "16.00";
+						}
 						outputBuffer.append(String.valueOf(i))
 								.append(Constant.splitter)
 								.append('\'')
@@ -136,7 +140,7 @@ public class AGetAllHistory {
 								.append(checkPointDesc)
 								.append(Constant.splitter)
 								.append(Constant.splitter)
-								.append("-" + aGetHist.getLargestWithdrawNode().getWithdraw() + "%")
+								.append("-" + largestWithDraw + "%")
 								.append(Constant.splitter)
 								.append(aGetHist.getLargestWithdrawNode().getPreHighDWJZ() + " -> "
 										+ aGetHist.getLargestWithdrawNode().getDWJZ())

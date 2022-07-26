@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
-// import java.text.ParseException;
 
 import com.util.FileOps;
 
@@ -57,7 +56,7 @@ public class AGetAllHistory {
 
 			// 逐行读取
 			while ((line = br.readLine()) != null) {
-				// System.out.println("line.trim()" + line.trim());
+				// 从conf/input.csv 逐行读取
 				String[] items = line.trim().split(Constant.splitter);
 				// System.out.println(items.length);
 				String number = items[1].trim(); // 基金代码
@@ -99,14 +98,7 @@ public class AGetAllHistory {
 					// 获取单只基金数据
 					AGetHistory aGetHist = new AGetHistory(number, monitorStartDate, monitorEndDate);
 
-					// if (number.trim().equals("002938")
-					// || number.trim().equals("540002")
-					// || number.trim().equals("270006")
-					// || number.trim().equals("160921")
-					// || number.trim().equals("770001")) {
-					// aGetHist = new AGetHistory(number, "2022-01-01", Constant.endDate);
-					// }
-
+					// 获取基金数据
 					aGetHist.collectData();
 
 					// 计算相对于历史最大回撤
@@ -119,21 +111,7 @@ public class AGetAllHistory {
 						}
 
 					}
-					// if (number.trim().equals("006567") || number.trim().equals("006624")) {
-					// largestWithDraw = 16.00f;
-					// // } else if (number.trim().equals("002938")) {
-					// // largestWithDraw = 21.07f;
-					// // } else if (number.trim().equals("540002")) {
-					// // largestWithDraw = 20.75f;
-					// // } else if (number.trim().equals("270006")) {
-					// // largestWithDraw = 19.49f;
-					// // } else if (number.trim().equals("160921")) {
-					// // largestWithDraw = 19.66f;
-					// // } else if (number.trim().equals("770001")) {
-					// // largestWithDraw = 21.00f;
-					// }
-					System.out.println(largestWithDraw);
-					System.out.println(aGetHist.getLatestNode().withdraw);
+
 					Float withdrawPercent = (float) Math.round(
 							aGetHist.getLatestNode().withdraw / largestWithDraw * 10000)
 							/ 100;
@@ -149,8 +127,10 @@ public class AGetAllHistory {
 						}
 					}
 
-					// 阈值区间跟前一天不同的话，添加到 additionalNoteBuffer
-					if (!checkPointDesc.equals(preCheckPointDesc)) {
+					// 添加到阈值提醒到 additionalNoteBuffer
+					// 阈值区间跟前一天不同
+					// 且阈值增大，即回撤更大
+					if (!checkPointDesc.equals(preCheckPointDesc) && aGetHist.getLatestNode().getJZZZL() < 0) {
 						additionalNoteBuffer.append(String.valueOf(i))
 								.append(Constant.splitter)
 								.append('\'')

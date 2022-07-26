@@ -8,9 +8,7 @@ import net.sf.json.JSONObject;
 
 import java.text.MessageFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
-// import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeMap;
@@ -75,32 +73,24 @@ public class AGetHistory {
         this.endDate = endDate;
     }
 
-    // private String getFundCode() {
-    // return this.fundCode;
-    // }
-
-    // private String getStartDate() {
-    // return this.startDate;
-    // }
-
-    // private String getEndDate() {
-    // return this.endDate;
-    // }
-
     public void collectData() {
+        // 从dataDetail 读取已有数据
         loadExitDataFile();
+
+        // 访问天天获取最新净值
+        // 根据净值数据条数 vs 当前数据条数的差异，确定是否继续获取
         refreshData();
+
+        // 计算净值
         setWithdraw();
+
+        // 根据起止区间，计算区间内最大回撤，以及当前回撤
         queryData();
-        // allData =
 
-        // // 获取历史净值，并计算回撤
-        // ArrayList processData = setWithdraw(getHisData());
-
-        // 输出到文件，目录dataDetail下，一只基金一个文件，保存历史净值数据
+        // 保存历史净值数据，输出到文件，目录dataDetail下，一只基金一个文件
         writeToFile(this.dataFile);
 
-        System.out.println("FHSPflag:" + String.valueOf(FHSPflag));
+        // System.out.println("FHSPflag:" + String.valueOf(FHSPflag));
     }
 
     public FundHistoricData getLargestNode() {
@@ -179,35 +169,13 @@ public class AGetHistory {
                         .append("\n");
                 FileOps.instance.outputFile(filePath, outputStr.toString());
             }
-            // for (int i = 0; i < hisData.size(); i++) {
-            // FundHistoricData oneDay = (FundHistoricData) hisData.get(i);
-            // outputStr.append(oneDay.getFSRQ()).append(Constant.splitter)
-            // .append(oneDay.DWJZ).append(Constant.splitter)
-            // .append(oneDay.LJJZ).append(Constant.splitter)
-            // .append(oneDay.JZZZL).append(Constant.splitter)
-            // .append(oneDay.SDATE).append(Constant.splitter)
-            // .append(oneDay.ACTUALSYI).append(Constant.splitter)
-            // .append(oneDay.NAVTYPE).append(Constant.splitter)
-            // .append(oneDay.SGZT).append(Constant.splitter)
-            // .append(oneDay.SHZT).append(Constant.splitter)
-            // .append(oneDay.FHFCZ).append(Constant.splitter)
-            // .append(oneDay.FHFCBZ).append(Constant.splitter)
-            // .append(oneDay.DTYPE).append(Constant.splitter)
-            // .append(oneDay.FHSP).append(Constant.splitter)
-            // .append(oneDay.FQJZ).append(Constant.splitter)
-            // .append(oneDay.getPreHighFSRQ()).append(Constant.splitter)
-            // .append(oneDay.preHighDWJZ).append(Constant.splitter)
-            // .append(oneDay.preHighLJJZ).append(Constant.splitter)
-            // .append(oneDay.withdraw).append(Constant.splitter)
-            // .append("\n");
-            // FileOps.instance.outputFile(filePath, outputStr.toString());
-            // }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
+    // 计算回撤
     private void setWithdraw() {
         Set<Date> keySet = allData.keySet();
         Iterator<Date> iter = keySet.iterator();
@@ -303,104 +271,9 @@ public class AGetHistory {
         }
     }
 
-    // // 根据历史数据计算回撤
-    // /**
-    // * @param hisData
-    // * @return
-    // */
-    // private ArrayList<FundHistoricData> setWithdraw(ArrayList<FundHistoricData>
-    // hisData) {
-    // ArrayList<FundHistoricData> newDataList = new ArrayList();
-
-    // // dateFormat.parse(date);
-    // FundHistoricData dayOne = (FundHistoricData) hisData.get(0);
-    // try {
-    // Date queryStartDate = FundHistoricData.dateFormat.parse(startDate);
-    // int i = 1;
-    // for (; i < hisData.size(); i++) {
-    // if (dayOne.FSRQ.before(queryStartDate)) {
-    // dayOne = (FundHistoricData) hisData.get(i);
-    // }
-    // }
-
-    // System.out.print("dayOne: ");
-    // System.out.println(dayOne.FSRQ);
-    // System.out.print("i: ");
-    // System.out.println(i);
-    // this.largestNode = dayOne;
-    // float fqjz = dayOne.DWJZ;
-    // dayOne.setFQJZ(dayOne.DWJZ);
-    // dayOne.setPreHighFSRQ(this.largestNode.FSRQ);
-    // dayOne.setPreHighDWJZ(this.largestNode.DWJZ);
-    // dayOne.setPreHighLJJZ(this.largestNode.LJJZ);
-    // dayOne.setPreHighFQJZ(this.largestNode.FQJZ);
-    // dayOne.calculateWithdraw();
-    // newDataList.add(dayOne);
-
-    // this.largestWithdrawNode = dayOne;
-    // i++;
-    // for (; i < hisData.size(); i++) {
-    // FundHistoricData dayTwo = (FundHistoricData) hisData.get(i);
-
-    // // 比较累计净值，如果当前更高，替换为this.largestNode
-    // if (dayTwo.LJJZ != null && dayTwo.LJJZ > this.largestNode.LJJZ) {
-    // this.largestNode = dayTwo;
-    // }
-
-    // /*
-    // * https://zhuanlan.zhihu.com/p/130476734
-    // * 复权净值：等于基金成立以来每天的收益率加1连乘，即a(T) = [1+r(1)]*[1+r(2)]*...*[1+r(T)]，
-    // * 其中r(t)就是基金投资端的实际收益率，计算公式为r(t) = U(t) / u(t-1) - 1 = [u(t)*s(t)+d(t)] /
-    // u(t-1)
-    // * - 1，
-    // * 这里U(t)就是用拆分s(t)和分红d(t)从单位净值u(t)还原出的原始（即拆分和分红前的）单位净值。
-    // * 复权净值的递推算法：a(t) = a(t-1) * [1+r(t)] = a(t-1) * [u(t)*s(t) + d(t)] / u(t-1)。
-    // * 如果没发生拆分和分红，即s(t)=1且d(t)=0，那么从公式看出真实收益率r(t) = u(t)/u(t-1) - 1就是单位净值的涨幅
-    // */
-    // if (FHSPflag) {
-    // // 有过历史分红的，计算复权净值
-    // if (dayTwo.JZZZL != null) {
-    // fqjz = (float) Math.round(fqjz * (1 + Float.valueOf(dayTwo.JZZZL) / 100) *
-    // 100000) / 100000;
-    // }
-    // } else {
-    // // 没有历史分红的，复权净值 = 净值 = 累计净值
-    // fqjz = dayTwo.DWJZ;
-    // }
-
-    // dayTwo.setFQJZ(fqjz);
-
-    // // 记录此前最高点信息
-    // dayTwo.setPreHighFSRQ(this.largestNode.FSRQ);
-    // dayTwo.setPreHighDWJZ(this.largestNode.DWJZ);
-    // dayTwo.setPreHighLJJZ(this.largestNode.LJJZ);
-    // dayTwo.setPreHighFQJZ(this.largestNode.FQJZ);
-
-    // // 计算当前节点回撤
-    // Float withdraw = dayTwo.calculateWithdraw();
-    // dayTwo.withdraw = withdraw;
-    // newDataList.add(dayTwo);
-    // dayOne = dayTwo;
-
-    // // 替换最大回撤节点
-    // if (withdraw > this.largestWithdrawNode.withdraw) {
-    // this.largestWithdrawNode = dayTwo;
-    // }
-    // }
-
-    // // 记录最新节点
-    // this.latestNode = hisData.get(hisData.size() - 1);
-
-    // } catch (Exception e) {
-    // System.out.println("fundCode: " + fundCode + "; startDate: " + startDate + ";
-    // endDate: " + endDate);
-    // e.printStackTrace();
-    // }
-    // return hisData;
-    // }
-
+    // 访问天天获取最新净值
+    // 根据净值数据条数 vs 当前数据条数的差异，确定是否继续获取
     private void refreshData() {
-        // 从天天读取历史数据
         int pageIndex = 1;
         JSONObject jsonObject = getContent(pageIndex);
         // System.out.println(jsonObject);
@@ -417,106 +290,12 @@ public class AGetHistory {
 
     }
 
-    // public ArrayList<FundHistoricData> getHisData() {
-    // System.out.println("I'm going to get");
-
-    // // 读取现有数据
-    // ArrayList<FundHistoricData> histDataListExist = loadDataFile();
-
-    // ArrayList<FundHistoricData> histDataList = new ArrayList();
-
-    // int pageIndex = 1;
-
-    // // 从天天读取历史数据
-    // JSONObject jsonObject = getContent(pageIndex);
-
-    // int totalCount = (int) jsonObject.getInt("TotalCount"); // 数据条数
-    // int pages = totalCount / Constant.pageSize + 1;
-    // System.out.print("pages: ");
-    // System.out.println(pages);
-
-    // if (histDataListExist.size() == 0) {
-    // // 本地存储的历史数据为空，逐页从天天读取
-    // histDataList.addAll(parseRequest(jsonObject));
-    // if (pages > 1) {
-    // for (int i = 2; i <= pages; i++) {
-    // jsonObject = getContent(i);
-    // histDataList.addAll(parseRequest(jsonObject));
-    // }
-    // }
-    // // 颠倒顺序，按日期升序存放
-    // for (int i = histDataList.size() - 1; i > -1; i--) {
-    // histDataListExist.add(histDataList.get(i));
-    // validFHSP(histDataList.get(i));
-    // }
-    // } else {
-    // histDataList.addAll(parseRequest(jsonObject));
-
-    // // 根据已有数据量和总数据条数判断是否接着从天天读取
-    // while ((histDataListExist.size() + histDataList.size()) < totalCount) {
-    // pageIndex++;
-    // jsonObject = getContent(pageIndex);
-    // histDataList.addAll(parseRequest(jsonObject));
-    // }
-
-    // // 获取已有数据的最新日期
-    // Date existLatest = histDataListExist.get(histDataListExist.size() - 1).FSRQ;
-    // // 把新数据添加到队尾
-    // for (int i = histDataList.size() - 1; i > -1; i--) {
-    // if (histDataList.get(i).FSRQ.getTime() > existLatest.getTime()) {
-    // histDataListExist.add(histDataList.get(i));
-    // }
-    // }
-    // // 验证是否有历史分红
-    // for (int i = 0; i < histDataListExist.size(); i++) {
-    // validFHSP(histDataListExist.get(i));
-    // }
-    // }
-    // return histDataListExist;
-    // }
-
     private void validFHSP(FundHistoricData data) {
         if (data.FHSP != null && data.FHSP.trim().length() != 0) {
             this.FHSPflag = true;
         }
 
     }
-
-    // // 读取现有数据
-    // private ArrayList<FundHistoricData> loadDataFile() {
-    // ArrayList<FundHistoricData> dataList = new ArrayList();
-    // try {
-    // InputStream input = new FileInputStream(this.dataFile);
-    // BufferedReader br = new BufferedReader(new InputStreamReader(input));
-    // String line = null;
-    // br.readLine();
-    // while ((line = br.readLine()) != null) {
-    // String[] items = line.split(",");
-    // FundHistoricData oneData = new FundHistoricData(
-    // items[0],
-    // items[1],
-    // items[2],
-    // items[3],
-    // items[4],
-    // items[5],
-    // items[6],
-    // items[7],
-    // items[8],
-    // items[9],
-    // items[10],
-    // items[11],
-    // items[12]);
-    // dataList.add(oneData);
-    // // allData.put(oneData.FSRQ, oneData);
-    // }
-
-    // input.close();
-    // br.close();
-    // } catch (IOException e) {
-    // System.out.println(e.getMessage());
-    // }
-    // return dataList;
-    // }
 
     // 读取现有数据
     private void loadExitDataFile() {
@@ -553,33 +332,7 @@ public class AGetHistory {
         }
     }
 
-    // private ArrayList<FundHistoricData> parseRequest(JSONObject jsonObject) {
-    // ArrayList<FundHistoricData> dataList = new ArrayList();
-
-    // JSONObject jsonObjData = jsonObject.getJSONObject("Data");
-    // JSONArray jsonArrayDataList = jsonObjData.getJSONArray("LSJZList");
-    // for (int i = 0; i < jsonArrayDataList.size(); i++) {
-    // JSONObject oneRecord = (JSONObject) jsonArrayDataList.get(i);
-    // FundHistoricData oneData = new FundHistoricData(
-    // oneRecord.getString("FSRQ"),
-    // oneRecord.getString("DWJZ"),
-    // oneRecord.getString("LJJZ"),
-    // oneRecord.getString("JZZZL"),
-    // oneRecord.getString("SDATE"),
-    // oneRecord.getString("ACTUALSYI"),
-    // oneRecord.getString("NAVTYPE"),
-    // oneRecord.getString("SGZT"),
-    // oneRecord.getString("SHZT"),
-    // oneRecord.getString("FHFCZ"),
-    // oneRecord.getString("FHFCBZ"),
-    // oneRecord.getString("DTYPE"),
-    // oneRecord.getString("FHSP"));
-    // dataList.add(oneData);
-    // }
-    // System.out.println(dataList.size());
-    // return dataList;
-    // }
-
+    // 追加新数据
     private void appendData(JSONObject jsonObject) {
         // ArrayList<FundHistoricData> dataList = new ArrayList();
 

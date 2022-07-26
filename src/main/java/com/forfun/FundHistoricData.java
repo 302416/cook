@@ -1,6 +1,5 @@
 package com.forfun;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -20,21 +19,6 @@ import java.util.Date;
 "DTYPE":null,
 "FHSP":""
 
-净值日期 	单位净值 	累计净值 	日增长率 	申购状态 	赎回状态 	分红送配
-
-"FSRQ":"2022-02-28",
-"DWJZ":"3.2070",
-"LJJZ":"3.4270",
-"SDATE":null,
-"ACTUALSYI":"",
-"NAVTYPE":"1",
-"JZZZL":"2.04",
-"SGZT":"开放申购",
-"SHZT":"开放赎回",
-"FHFCZ":"",
-"FHFCBZ":"",
-"DTYPE":null,
-"FHSP":""
 */
 public class FundHistoricData {
     Date FSRQ; // 净值日期
@@ -163,5 +147,9 @@ public class FundHistoricData {
 
     public String getWithdraw() {
         return this.withdraw.toString();
+    }
+
+    public float getJZZZL() {
+        return this.JZZZL;
     }
 }

@@ -5,6 +5,7 @@ public class Constant {
     // public static final String dataFileNamePrefix = "output-data";
     // public static final String dataFileNamePostfix = ".csv";
 
+    public static final String inputFile = "conf/input.csv";
     public static final String dataPath = "data";
     public static final String dataPattern = "data/output-data-{0}.csv";
     public static final String dataDetailPattern = "dataDetail/hisData_{0}.csv";

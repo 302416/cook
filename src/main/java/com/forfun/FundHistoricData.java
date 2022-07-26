@@ -1,5 +1,6 @@
 package com.forfun;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -19,12 +20,27 @@ import java.util.Date;
 "DTYPE":null,
 "FHSP":""
 
+净值日期 	单位净值 	累计净值 	日增长率 	申购状态 	赎回状态 	分红送配
+
+"FSRQ":"2022-02-28",
+"DWJZ":"3.2070",
+"LJJZ":"3.4270",
+"SDATE":null,
+"ACTUALSYI":"",
+"NAVTYPE":"1",
+"JZZZL":"2.04",
+"SGZT":"开放申购",
+"SHZT":"开放赎回",
+"FHFCZ":"",
+"FHFCBZ":"",
+"DTYPE":null,
+"FHSP":""
 */
 public class FundHistoricData {
-    Date FSRQ;  // 净值日期
+    Date FSRQ; // 净值日期
     Float DWJZ; // 单位净值
     Float LJJZ; // 累计净值
-    Float JZZZL;    // 日增长率
+    Float JZZZL; // 日增长率
     String SDATE;
     String ACTUALSYI;
     String NAVTYPE;
@@ -36,26 +52,25 @@ public class FundHistoricData {
     String FHSP;
     Float FQJZ;
 
-    Date preHighFSRQ;   // 前一高值 净值日期
-    Float preHighDWJZ;  // 前一高值 单位净值
-    Float preHighLJJZ;  // 前一高值 累计净值
-    Float preHighFQJZ;  // 前一高值 复权净值
-    Float withdraw;     // 回撤 = 复权净值 / 前一高值复权净值
-    
+    Date preHighFSRQ; // 前一高值 净值日期
+    Float preHighDWJZ; // 前一高值 单位净值
+    Float preHighLJJZ; // 前一高值 累计净值
+    Float preHighFQJZ; // 前一高值 复权净值
+    Float withdraw; // 回撤 = 复权净值 / 前一高值复权净值
+
     static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-    public FundHistoricData(String date, String inputDWJZ, String inputLJJZ, String inputJZZZL, 
-        String inputSDATE, 
-        String inputACTUALSYI,
-        String inputNAVTYPE,
-        String inputSGZT,
-        String inputSHZT,
-        String inputFHFCZ,
-        String inputFHFCBZ,
-        String inputDTYPE,
-        String inputFHSP
-        ){
-        
+    public FundHistoricData(String date, String inputDWJZ, String inputLJJZ, String inputJZZZL,
+            String inputSDATE,
+            String inputACTUALSYI,
+            String inputNAVTYPE,
+            String inputSGZT,
+            String inputSHZT,
+            String inputFHFCZ,
+            String inputFHFCBZ,
+            String inputDTYPE,
+            String inputFHSP) {
+
         try {
             FSRQ = dateFormat.parse(date);
             DWJZ = Float.valueOf(inputDWJZ);
@@ -87,23 +102,27 @@ public class FundHistoricData {
     public void setPreHighFSRQ(Date date) {
         this.preHighFSRQ = date;
     }
+
     public void setPreHighDWJZ(Float dwjz) {
         this.preHighDWJZ = dwjz;
     }
+
     public void setPreHighLJJZ(Float ljjz) {
         this.preHighLJJZ = ljjz;
     }
+
     public void setFQJZ(Float fqjz) {
         this.FQJZ = fqjz;
     }
+
     public void setPreHighFQJZ(Float fqjz) {
         this.preHighFQJZ = fqjz;
     }
 
     public Float calculateWithdraw() {
         // 通过复权净值计算回撤, 若为null, 回撤为0
-        if(this.preHighFQJZ != null && this.FQJZ != null) {
-            this.withdraw = (float) Math.round( (1 - this.FQJZ / this.preHighFQJZ) * 10000 )/100;
+        if (this.preHighFQJZ != null && this.FQJZ != null) {
+            this.withdraw = (float) Math.round((1 - this.FQJZ / this.preHighFQJZ) * 10000) / 100;
         } else {
             this.withdraw = 0F;
         }
@@ -111,17 +130,27 @@ public class FundHistoricData {
     }
 
     public String getPreHighFSRQ() {
-        return dateFormat.format(this.preHighFSRQ);
+        String preHighFSRQ = "";
+        if (this.preHighFSRQ != null) {
+            preHighFSRQ = dateFormat.format(this.preHighFSRQ);
+        }
+        return preHighFSRQ;
     }
+
     public String getPreHighDWJZ() {
         return this.preHighDWJZ.toString();
     }
+
     public String getPreHighLJJZ() {
         return this.preHighLJJZ.toString();
     }
 
     public String getFSRQ() {
-        return dateFormat.format(this.FSRQ);
+        String strFSRQ = "";
+        if (this.FSRQ != null) {
+            strFSRQ = dateFormat.format(this.FSRQ);
+        }
+        return strFSRQ;
     }
 
     public String getDWJZ() {
